@@ -6,6 +6,7 @@ const pool = require("./connection");
 const axios = require("axios");
 
 router.get("/products", (req, res) => {
+  console.log('REQUEST HEADERS ON PROTECTED::',req.headers.authorization)
     console.log('HELLO')
     let mysql = "select * from products where available = true";
     pool.getConnection(function(err, connection) {

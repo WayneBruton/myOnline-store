@@ -8,9 +8,6 @@ const bcrypt = require("bcryptjs");
 let saltRounds = 10;
 
 router.use((req, res, next) => {
-  //   console.log("this is the body", req.body);
-  let email = req.body.email;
-  //   console.log(email);
   const schema = {
     email: Joi.string().email(),
     user_password: Joi.string().regex(new RegExp("^[a-zA-Z0-9]{6,32}$")),
@@ -21,7 +18,6 @@ router.use((req, res, next) => {
   const { error, value } = Joi.validate(req.body, schema);
   if (error) {
     console.log("HELLO", error.details[0].context.key);
-    // let err = error.details[0].context.key;
     switch (error.details[0].context.key) {
       case "email":
         res.status(400).send({
@@ -64,43 +60,18 @@ function jwtSignUser(user) {
   });
 }
 
-// let user = req.body;
-//     let token = jwtSignUser(user)
-//     console.log('Token is:', token)
-
-//     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-//         if (err) {
-//         //   return res.json({
-//         //     success: false,
-//         //     message: 'Token is not valid'
-//         //   });
-//         console.log(err)
-//         } else {
-//         //   req.decoded = decoded;
-//         //   next();
-//         console.log('decoded token:',decoded)
-//         }
-//       });
-
 router.post("/registerUser", (req, res, next) => {
   let user_password = req.body.user_password;
-  // console.log(user_password)
   let mysql = "";
   bcrypt.hash(user_password, saltRounds, function(err, hash) {
-    // console.log('this is the hash',hash)
-    // mysql = `This is the hash: ${hash}`;
     mysql = `insert into users (first_name, last_name, email, user_password) values (
         '${req.body.first_name}', '${req.body.last_name}', '${
       req.body.email
     }', '${hash}'
     )`;
-    console.log("******************");
-    console.log(mysql);
     let mysql2 = `select * from users where email = '${req.body.email}'`;
-    console.log("******************");
     pool.getConnection(function(err, connection) {
       if (err) {
-        console.log("ERR", err);
         connection.release();
         res.json({ error: "Error with connection" });
       }
@@ -112,27 +83,71 @@ router.post("/registerUser", (req, res, next) => {
           if (error) {
             return res.send({ error: "That email address is already in use." });
           }
-          console.log(result[0].id);
           let userJson = {
             id: result[0].id,
             email: result[0].email
           };
-          console.log(userJson);
-            res.json({
-                user: userJson,
-                token: jwtSignUser(userJson)
-            });
+          res.header("Authorization", "Bearer" + jwtSignUser(userJson));
+          res.json({
+            user: userJson,
+            token: jwtSignUser(userJson)
+          });
         });
       });
       connection.release();
     });
   });
-  //   res.json({ message: "It works!!" });
 });
 
-//   res.send({
-//     user: userJson,
-//     token: jwtSignUser(userJson)
-//   })
+router.put("/checkEmail", (req, res) => {
+  console.log("This is the body", req.body.email);
+  let mysql = `select email from users where email = '${req.body.email}'`;
+  pool.getConnection(function(err, connection) {
+    if (err) {
+      console.log("ERR", err);
+      connection.release();
+      resizeBy.send("Error with connection");
+    }
+    connection.query(mysql, function(error, result) {
+      if (error) throw error;
+      console.log(result);
+      res.json(result);
+    });
+    connection.release();
+  });
+});
+
+router.put("/login", (req, res) => {
+  console.log("This is the body", req.body);
+  let user_password = req.body.user_password;
+  console.log(user_password);
+  let mysql = `select * from users where email = '${req.body.email}'`;
+  pool.getConnection(function(err, connection) {
+    if (err) {
+      console.log("ERR", err);
+      connection.release();
+      resizeBy.send("Error with connection");
+    }
+    connection.query(mysql, function(error, result) {
+      if (error) throw error;
+      let hash = result[0].user_password;
+      let userJson = {
+        id: result[0].id,
+        email: result[0].email
+      };
+      console.log("user", userJson);
+      bcrypt.compare(user_password, hash, function(err, response) {
+        if (response) {
+          res.json({
+            user: userJson,
+            username: result[0].first_name,
+            token: jwtSignUser(userJson)
+          });
+        }
+      });
+    });
+    connection.release();
+  });
+});
 
 module.exports = router;
