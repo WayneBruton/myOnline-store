@@ -6,13 +6,17 @@ create table users (
     first_name varchar(100) not null,
     last_name varchar(100) not null,
     email VARCHAR(100) NOT NULL UNIQUE,
+    contact_number varchar(100),
+    delivery_address text,
+    postal_code INT,
+    suburb VARCHAR(100),
+    city VARCHAR(100),
+    province varchar(100),
     user_password VARCHAR(255) NOT NULL,
     createdAt TIMESTAMP DEFAULT NOW(),
     resettoken varchar(20),
     resetexpiry TIMESTAMP DEFAULT NOW()
 );
-
-insert into users (email, user_password) values ('waynebruton@icloud.com', 'password');
 
 create table products (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -30,6 +34,32 @@ create table products (
     available   boolean default true,
     created_at TIMESTAMP DEFAULT NOW()
 );
+
+
+create table invoices (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id int not null,
+    total_Value decimal(11,2) not null,
+    invoice_date TIMESTAMP DEFAULT NOW(),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+create table cart (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id int not null,
+    user_id INT not null,
+    price decimal(35,2) not null,
+    quantity int not null,
+    total decimal(35,2) not null,
+    invoice_number int,
+    vat decimal(35,2) not null default 0.0,
+    netAmount decimal(35,2) not null,
+    FOREIGN KEY (product_id) REFERENCES products(id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (invoice_number) REFERENCES invoices(id)
+);
+
+
 
 insert into products (product_name,product_description, price, product_image ) values 
 (
@@ -75,74 +105,153 @@ insert into products (product_name,product_description, price, product_image ) v
     "/images/image27.jpeg"
 );
 
-create table clients (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    email varchar(100) not null unique,
-    first_name varchar(100) not null,
-    last_name varchar(100) not null,
-    contact_number varchar(15) not null,
-    delivery_address1 varchar(100) not null,
-    delivery_address2 varchar(100),
-    delivery_address3 varchar(100),
-    suburb varchar(100),
-    city varchar(100),
-    province varchar(100),
-    postal_code varchar(6) not null,
-    created_at TIMESTAMP DEFAULT NOW()
+
+
+
+
+
+
+insert into products (product_name,product_description, price, product_image ) values 
+(
+    'Product 4',
+    'Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.',
+    211.99,
+    "/images/image10.jpeg"
+),
+(
+    'Product 5',
+    'Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.',
+    221.90,
+    "/images/image11.png"
+),
+(
+    'Product 6',
+    'Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.',
+    77.65,
+    "/images/image16.png"
+),
+(
+    'Product 7',
+    'Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.',
+    113.18,
+    "/images/image21.jpeg"
+),
+(
+    'Product 8',
+    'Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.',
+    189.01,
+    "/images/image22.jpeg"
+),
+(
+    'Product 9',
+    'Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.',
+    289.90,
+    "/images/image28.png"
+),
+(
+    'Product 10',
+    'Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.',
+    69.15,
+    "/images/image35.jpeg"
+),
+(
+    'Product 11',
+    'Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.',
+    121.70,
+    "/images/image36.jpeg"
+),
+(
+    'Product 12',
+    'Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.',
+    99.99,
+    "/images/image37.jpeg"
+),
+(
+    'Product 13',
+    'Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa accusamus iure neque dicta
+    consequatur. Adipisci quae doloribus veniam laboriosam, illo minus ratione magnam nemo, quasi
+    quos accusantium, quaerat veritatis dolor.',
+    88.76,
+    "/images/image38.png"
 );
-
-create table invoices (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    order_number varchar(100) not null,
-    client_id int not null,
-    total_Value decimal(11,2) not null,
-    invoice_date TIMESTAMP DEFAULT NOW(),
-    FOREIGN KEY (order_number) REFERENCES orders(order_number)
-);
-
-create table cart (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    product_id int not null,
-    item_price decimal(6,2) not null,
-    item_weight decimal(5,2) not null default 0.00,
-    item_quantity int not null default 1,
-    item_name varchar(100) not null,
-    sales_weight decimal(5,2) not null,
-    sales_value decimal(35,2) not null,
-    order_number varchar(100) not null,
-    product_image varchar(100),
-    salesPriceString varchar(20) not null,
-    FOREIGN KEY (product_id) REFERENCES products(id)
-);
-
-
-
-create table orders (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    product_id int not null,
-    client_id int not null,
-    item_price decimal(6,2) not null,
-    item_weight decimal(5,2) not null default 0.00,
-    item_quantity int not null default 1,
-    item_name varchar(100) not null,
-    sales_weight decimal(5,2) not null,
-    sales_value decimal(35,2) not null,
-    order_number varchar(100) not null,
-    product_image varchar(100),
-    salesPriceString varchar(20) not null,
-    invoice_number int,
-    invoiced boolean not null default false,
-    paid boolean not null default false,
-    FOREIGN KEY (product_id) REFERENCES products(id),
-    FOREIGN KEY (client_id) REFERENCES clients(id),
-    FOREIGN KEY (invoice_number) REFERENCES invoices(id)
-);
-
-
-
-
-
-
 
 
 

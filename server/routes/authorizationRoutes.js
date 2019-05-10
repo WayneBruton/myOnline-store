@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 const Joi = require("joi");
 const bcrypt = require("bcryptjs");
 
-let saltRounds = 10;
+const saltRounds = process.env.SALT_ROUNDS;
 
 router.use((req, res, next) => {
   const schema = {
@@ -17,7 +17,6 @@ router.use((req, res, next) => {
 
   const { error, value } = Joi.validate(req.body, schema);
   if (error) {
-    console.log("HELLO", error.details[0].context.key);
     switch (error.details[0].context.key) {
       case "email":
         res.status(400).send({
@@ -85,6 +84,7 @@ router.post("/registerUser", (req, res, next) => {
           }
           let userJson = {
             id: result[0].id,
+            username: result[0].first_name,
             email: result[0].email
           };
           res.header("Authorization", "Bearer" + jwtSignUser(userJson));
@@ -100,17 +100,14 @@ router.post("/registerUser", (req, res, next) => {
 });
 
 router.put("/checkEmail", (req, res) => {
-  console.log("This is the body", req.body.email);
   let mysql = `select email from users where email = '${req.body.email}'`;
   pool.getConnection(function(err, connection) {
     if (err) {
-      console.log("ERR", err);
       connection.release();
       resizeBy.send("Error with connection");
     }
     connection.query(mysql, function(error, result) {
       if (error) throw error;
-      console.log(result);
       res.json(result);
     });
     connection.release();
@@ -118,33 +115,38 @@ router.put("/checkEmail", (req, res) => {
 });
 
 router.put("/login", (req, res) => {
-  console.log("This is the body", req.body);
   let user_password = req.body.user_password;
-  console.log(user_password);
   let mysql = `select * from users where email = '${req.body.email}'`;
   pool.getConnection(function(err, connection) {
     if (err) {
-      console.log("ERR", err);
       connection.release();
       resizeBy.send("Error with connection");
     }
     connection.query(mysql, function(error, result) {
-      if (error) throw error;
-      let hash = result[0].user_password;
-      let userJson = {
-        id: result[0].id,
-        email: result[0].email
-      };
-      console.log("user", userJson);
-      bcrypt.compare(user_password, hash, function(err, response) {
-        if (response) {
+      if (error) {
+        res.json({ error: "No such user" });
+      } else {
+        if (!result.length) {
           res.json({
-            user: userJson,
-            username: result[0].first_name,
-            token: jwtSignUser(userJson)
+            error: "No user registered, try signup and register as a user."
+          });
+        } else {
+          let hash = result[0].user_password;
+          let userJson = {
+            id: result[0].id,
+            email: result[0].email
+          };
+          bcrypt.compare(user_password, hash, function(err, response) {
+            if (response) {
+              res.json({
+                user: userJson,
+                username: result[0].first_name,
+                token: jwtSignUser(userJson)
+              });
+            }
           });
         }
-      });
+      }
     });
     connection.release();
   });
