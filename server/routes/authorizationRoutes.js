@@ -5,7 +5,8 @@ const jwt = require("jsonwebtoken");
 const Joi = require("joi");
 const bcrypt = require("bcryptjs");
 
-const saltRounds = process.env.SALT_ROUNDS;
+// const saltRounds = process.env.SALT_ROUNDS;
+const saltRounds = 10
 
 router.use((req, res, next) => {
   const schema = {
@@ -107,8 +108,11 @@ router.put("/checkEmail", (req, res) => {
       resizeBy.send("Error with connection");
     }
     connection.query(mysql, function(error, result) {
-      if (error) throw error;
+      if (error) {
+        res.send({ error: "There is an error, try again later" })
+      };
       res.json(result);
+      console.log(result)
     });
     connection.release();
   });
@@ -120,7 +124,7 @@ router.put("/login", (req, res) => {
   pool.getConnection(function(err, connection) {
     if (err) {
       connection.release();
-      resizeBy.send("Error with connection");
+      res.json({ error: "Error with connection. Are you online?" });
     }
     connection.query(mysql, function(error, result) {
       if (error) {
@@ -128,7 +132,7 @@ router.put("/login", (req, res) => {
       } else {
         if (!result.length) {
           res.json({
-            error: "No user registered, try signup and register as a user."
+            error: `No user registered under "${req.body.email}", try signup and register as a user.`
           });
         } else {
           let hash = result[0].user_password;
@@ -143,6 +147,10 @@ router.put("/login", (req, res) => {
                 username: result[0].first_name,
                 token: jwtSignUser(userJson)
               });
+            } else {
+              res.json({
+                error: "Password is incorrect. Please try again"
+              });
             }
           });
         }
@@ -151,5 +159,7 @@ router.put("/login", (req, res) => {
     connection.release();
   });
 });
+
+
 
 module.exports = router;

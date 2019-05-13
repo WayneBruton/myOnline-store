@@ -6,7 +6,7 @@ const fs = require("fs");
 const path = require("path");
 app = express();
 
-app.use(morgan("combined"));
+// app.use(morgan("combined"));
 app.use(bodyParser.json());
 app.use(cors());
 const port = process.env.PORT || 3000;
@@ -25,11 +25,16 @@ app.use(bodyParser.json());
 
 const storeRoutes = require("../server/routes/store"),
   authorizationRoutes = require("../server/routes/authorizationRoutes"),
-  checkoutRoutes = require("../server/routes/checkoutRoutes");
+  checkoutRoutes = require("../server/routes/checkoutRoutes"),
+  finalizePaymentRoutes = require("../server/routes/finalizePaymentRoutes"),
+  contactRoutes = require("../server/routes/contactRoutes"),
+  authenticationRoutes = require("../server/routes/authenticationRoutes")
 
 app.use(storeRoutes);
+app.use(contactRoutes);
 app.use(checkoutRoutes);
-
+app.use(finalizePaymentRoutes);
+app.use(authenticationRoutes);
 app.use(authorizationRoutes);
 
 app.listen(port, () => {

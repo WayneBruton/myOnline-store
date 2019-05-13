@@ -7,20 +7,14 @@ const Cryptr = require("cryptr");
 const cryptr = new Cryptr(process.env.ENCRYPTION_SECRET);
 
 router.get("/deliveryDetails/:id", (req, res) => {
-  // console.log("testing");
-  // console.log("This is the body", req.params.id);
-  // console.log("This is the body", req.params.id);
   let mysql = `select * from users where id = ${req.params.id}`;
-  // res.json({yes: 'It works'})
   pool.getConnection(function(err, connection) {
     if (err) {
-      console.log("ERR", err);
       connection.release();
       resizeBy.send("Error with connection");
     }
     connection.query(mysql, function(error, result) {
       if (error) throw error;
-      console.log(result);
       res.json(result);
     });
     connection.release();
@@ -28,7 +22,6 @@ router.get("/deliveryDetails/:id", (req, res) => {
 });
 
 router.put("/updateDelivery", (req, res) => {
-  // console.log("testing123456");
   let city = req.body.city;
   let contact_number = req.body.contact_number;
   let delivery_address = req.body.delivery_address;
@@ -47,58 +40,21 @@ router.put("/updateDelivery", (req, res) => {
       resizeBy.send("Error with connection");
     }
     connection.query(mysql, function(error, result) {
-      if (error) throw error;
+      if (error) {
+        console.log('This is the error::::****', error)
+      };
       res.json(result);
     });
     connection.release();
   });
 });
 
-router.put("/successURL", (req, res) => {
-  // console.log("testing123456");
 
-  // console.log("This is the body", req.body);
-  let successURL = cryptr.encrypt(JSON.stringify(req.body));
-  let decrypted = cryptr.decrypt(successURL);
-  // console.log("*************************************");
-  // console.log("Encrypted", successURL);
-  // console.log("DECRYPTED", JSON.parse(decrypted));
-  // console.log("*************************************");
-  res.json({ successURL: successURL });
-});
-
-router.get("/successResponse/:pfast", (req, res) => {
- 
-  let successURL = req.params.pfast
-  // console.log("This is the param", req.params.pfast);
-  // let successURL = cryptr.encrypt(JSON.stringify(req.body));
-  let decrypted = cryptr.decrypt(successURL);
-  let info = JSON.parse(decrypted)
-  mysql = `select first_name, last_name from users where id = ${info.id}`
-  pool.getConnection(function(err, connection) {
-    if (err) {
-      connection.release();
-      resizeBy.send("Error with connection");
-    }
-    connection.query(mysql, function(error, result) {
-      if (error) throw error;
-      let sending = {
-        first_name: result[0].first_name,
-        last_name: result[0].last_name,
-        amount_paid: info.finalAmount
-      }
-      res.json(sending);
-    });
-    connection.release();
-  });
-});
 
 router.post("/createCart", (req, res) => {
-  console.log('THIS IS THE CART BODY',req.body);
-  // res.send({itWords: 'AWESOME!!!'})
-  let cartDetails = req.body
-  let finalCart = []
-  let cartDetail = {}
+  let cartDetails = req.body;
+  let finalCart = [];
+  let cartDetail = {};
   cartDetails.forEach(el => {
     cartDetail = {
       product_id: el.id,
@@ -108,30 +64,28 @@ router.post("/createCart", (req, res) => {
       total: el.total,
       vat: el.vat,
       netAmount: parseFloat(el.total + el.vat).toFixed(2)
-    }
-    finalCart.push(cartDetail)
+    };
+    finalCart.push(cartDetail);
   });
-  console.log('THE FINAL CART',finalCart)
-  let mysql = `Insert into cart (product_id, user_id, price, quantity, total, vat, netAmount) values `
-  let mysql2 = ""
-  
+  let mysql = `Insert into cart (product_id, user_id, price, quantity, total, vat, netAmount) values `;
+  let mysql2 = "";
+
   finalCart.forEach((el, index) => {
     if (index === finalCart.length - 1) {
       mysql2 =
         mysql2 +
-        `(${el.product_id},${el.user_id},${el.price},${
-          el.quantity
-        },${el.total},${el.vat},${el.netAmount})`;
+        `(${el.product_id},${el.user_id},${el.price},${el.quantity},${
+          el.total
+        },${el.vat},${el.netAmount})`;
     } else {
       mysql2 =
         mysql2 +
-        `(${el.product_id},${el.user_id},${el.price},${
-          el.quantity
-        },${el.total},${el.vat},${el.netAmount}),`;
+        `(${el.product_id},${el.user_id},${el.price},${el.quantity},${
+          el.total
+        },${el.vat},${el.netAmount}),`;
     }
   });
-  mysql = mysql + mysql2
-  console.log(mysql)
+  mysql = mysql + mysql2;
   pool.getConnection(function(err, connection) {
     if (err) {
       connection.release();
@@ -147,10 +101,7 @@ router.post("/createCart", (req, res) => {
 
 router.delete("/deleteCart/:id", (req, res) => {
   let id = parseInt(req.params.id);
-  console.log('THIS IS THE USER ID',id)
-  // res.send({itWorks: 'AWESOME'})
-  mysql = `delete from cart where user_id = ${id} and invoice_number is null`
-  console.log(mysql)
+  mysql = `delete from cart where user_id = ${id} and invoice_number is null`;
   pool.getConnection(function(err, connection) {
     if (err) {
       connection.release();
